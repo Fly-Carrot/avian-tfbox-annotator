@@ -8,8 +8,8 @@ let reviews = {}, storageError = '', current = 0, selected = 0, mode = 'merged';
 let timeStart = 0, timeEnd = DURATION, stopAt = null, token = 0, ready = false;
 let low = new Image(), full = new Image(), wide = new Image();
 if (DATA.render.frequency_views_hz.includes(24000)) $('freq').add(new Option('24 kHz', '24000'));
-const labels = {unreviewed:'Unreviewed', usable:'Grouping looks usable', overmerged:'Overmerged',
-  undermerged:'Undermerged', boundary:'Adjust boundaries', uncertain:'Uncertain'};
+const labels = {unreviewed:'To review', usable:'Looks good', overmerged:'Split some boxes',
+  undermerged:'Merge more boxes', boundary:'Adjust edges', uncertain:'Unsure'};
 try {
   const stored = JSON.parse(localStorage.getItem(KEY) || '{}');
   if (stored && typeof stored === 'object' && !Array.isArray(stored)) reviews = stored;
@@ -47,17 +47,16 @@ function load(index) {
   $('prev').disabled=index===0; $('next').disabled=index===DATA.items.length-1;
   $('save-next-label').textContent=index===DATA.items.length-1?'Save feedback':'Save and next';
   $('xc').textContent=r.id; $('species').textContent=r.scientific_name;
-  $('meta').textContent=`Quality ${r.quality} · ${r.country} · Source label ${r.raw_type} · Local file ${r.clip_start_s.toFixed(3)}–${(r.clip_start_s+DURATION).toFixed(3)} s`;
+  $('meta').textContent=[`${DURATION} seconds`,r.quality==='A'||r.quality==='B'?`Quality ${r.quality}`:'',r.country!=='unknown'?r.country:''].filter(Boolean).join(' · ');
   $('source').href=r.recording_url || '#'; $('source').hidden=!r.recording_url;
   $('candidate-count').textContent=`${r.original_boxes.length} original → ${r.merged_boxes.length} merged boxes`;
   $('reason').textContent=r.reason; $('limits').textContent=r.limits;
-  $('credit').textContent=`Recorded by: ${r.recordist} · ${r.date} · ${r.license}`;
-  $('location').textContent=`Location: ${r.location}`;
-  $('provenance').textContent=`Standard ${DATA.standard}; mode ${DATA.provenance.mode}; proposal hash ${DATA.source_data_sha256}; grouping ${DATA.grouping_sha256}`;
+  $('credit').textContent=[r.recordist,r.date,r.license].filter(v=>v&&v!=='unknown').join(' · ');
+  $('location').textContent=r.location&&r.location!=='unknown'?r.location:'';
   const saved=reviews[r.id];
   $('rating').value=saved && labels[saved.rating]?saved.rating:'unreviewed';
   $('notes').value=saved?.notes || '';
-  $('saved').textContent=storageError || (saved?'Saved feedback restored':'Unreviewed');
+  $('saved').textContent=storageError || (saved?'Saved notes restored':'To review');
   $('saved').className='status '+(storageError?'failure':'');
   $('notice').textContent='Cyan: original boxes. Orange dashed: merged boxes.';
   // Start with enough frequency context for the candidates, without hiding their tops.
@@ -73,7 +72,7 @@ function load(index) {
 }
 function rows() {
   $('rows').replaceChildren();
-  $('table-title').textContent=(mode==='merged'?'Merged coordinates':'Original coordinates')+' · unreviewed';
+  $('table-title').textContent=mode==='merged'?'Merged boxes':'Original boxes';
   $('mode-merged').setAttribute('aria-pressed',mode==='merged');
   $('mode-original').setAttribute('aria-pressed',mode==='original');
   boxes().forEach((b,i)=>{
@@ -95,10 +94,10 @@ function rows() {
   const b=active();
   $('members').textContent=!b?'No candidate boxes.':mode==='merged'
     ?`${b.box_id} ← ${b.members.join(' + ')}`
-    :`${b.box_id} · original visual proposal`;
-  $('group-note').textContent=!b?'Abstained. No boxes does not mean no vocalizations.':mode==='merged'
-    ?`${b.members.length} original boxes; maximum internal gap ${b.max_internal_gap_s.toFixed(3)} s。${b.no_shared_frequency_band?'No shared frequency band; check for different sources. ':''}${b.boundary_truncated?'Truncated at clip edge.':''}`
-    :`Annotation unit: ${item().unit}。${b.boundary_truncated?'Truncated at clip edge.':''}`;
+    :`${b.box_id} · original box`;
+  $('group-note').textContent=!b?'Leave a note if you see a sound to mark.':mode==='merged'
+    ?`${b.members.length} original boxes combined. Longest gap: ${b.max_internal_gap_s.toFixed(3)} s. ${b.no_shared_frequency_band?'Check whether these are the same sound source. ':''}${b.boundary_truncated?'Sound reaches the clip edge.':''}`
+    :`${item().unit}. ${b.boundary_truncated?'Sound reaches the clip edge.':''}`;
   draw();
 }
 function geometry() {
@@ -140,7 +139,7 @@ function draw() {
 }
 function changeMode(next) {
   audio.pause();stopAt=null;mode=next;selected=0;rows();
-  $('notice').textContent=mode==='merged'?'Orange dashed: merged boxes (≤0.5 s).':'Cyan solid: original boxes. Feedback still targets merged grouping.';
+  $('notice').textContent=mode==='merged'?'Orange dashed: merged boxes.':'Cyan solid: original boxes.';
 }
 $('mode-merged').onclick=()=>changeMode('merged');
 $('mode-original').onclick=()=>changeMode('original');
@@ -157,7 +156,7 @@ $('focus-box').onclick=()=>{
 $('play-box').onclick=async()=>{
   const b=active();if(!b)return;audio.pause();audio.currentTime=Math.max(0,b.t_start_s-.06);
   stopAt=Math.min(DURATION,b.t_end_s+.06);
-  try {await audio.play();$('notice').textContent=`Playing ${b.box_id}, including internal gaps, without frequency filtering.`;}
+  try {await audio.play();$('notice').textContent=`Playing ${b.box_id}.`;}
   catch {stopAt=null;$('notice').textContent='Playback failed. Retry using the audio controls.';}
 };
 audio.addEventListener('timeupdate',()=>{$('cursor').textContent=audio.currentTime.toFixed(3)+' s';draw();});

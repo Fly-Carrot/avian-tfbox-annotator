@@ -294,7 +294,7 @@ def build(args):
     write(out / "data.json", payload)
     shutil.copyfile(args.prepared, out / "prepared.input.json")
     shutil.copyfile(args.proposals, out / "proposals.input.json")
-    shutil.copyfile(SKILL / "references" / ("standard.md" if standard == STANDARD else "standard-3s.md"), out / "METHOD.md")
+    shutil.copyfile(SKILL / "references/guide.md", out / "METHOD.md")
     with zipfile.ZipFile(out / "raven_gap05.zip", "w", zipfile.ZIP_DEFLATED) as archive:
         for r in items:
             archive.write(out / r["audio"], r["id"]+".wav")
@@ -335,7 +335,11 @@ def main():
                         ("build", ("prepared", "proposals", "out"))):
         sub = subs.add_parser(name)
         for flag in flags:
-            sub.add_argument("--"+flag, required=True)
+            if flag == "manifest":
+                sub.add_argument("--input", "--manifest", dest="manifest", required=True,
+                                 help="JSON list of local recordings")
+            else:
+                sub.add_argument("--"+flag, required=True)
         if name == "render":
             sub.add_argument("--standard", choices=sorted(PROFILES), default=STANDARD)
     args = parser.parse_args()

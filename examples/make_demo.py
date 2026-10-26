@@ -40,10 +40,10 @@ def main():
     out.mkdir(parents=True)
     audio = out / "synthetic.wav"
     chirps(audio)
-    manifest = out / "manifest.json"
+    manifest = out / "input.json"
     write(manifest, {"items": [{"id": "SYNTH-001", "audio_path": str(audio),
-          "scientific_name": "Synthetic chirps (not a bird)", "quality": "unrated",
-          "license": "Synthetic fixture; not a wildlife recording"}]})
+          "scientific_name": "Synthetic chirp example", "quality": "unrated",
+          "license": "Synthetic example"}]})
     render(SimpleNamespace(manifest=manifest, out=out / "rendered", standard="annotate-tfbox-3s-v1"))
     prepared_path = out / "rendered/prepared.json"
     proposals = read(out / "rendered/proposals.template.json")
@@ -51,8 +51,8 @@ def main():
         image_tool="none; deterministic synthetic fixture", audio_listened=False,
         notes="Known synthetic fixture coordinates; no model inspection or biological inference")
     proposals["items"]["SYNTH-001"].update(status="proposed", unit="synthetic chirp",
-        reason="Known synthesis intervals; fixture boxes are replayed, not inferred.",
-        limits="Not bird audio. Does not measure annotation accuracy.",
+        reason="Three chirps start at 0.50, 1.25, and 2.50 seconds.",
+        limits="Listen and compare each chirp with its box.",
         pixels=[[200, 500, 300, 545], [500, 500, 600, 545], [1000, 500, 1100, 545]])
     proposals["prepared_sha256"] = sha(prepared_path)
     write(out / "proposals.json", proposals)
