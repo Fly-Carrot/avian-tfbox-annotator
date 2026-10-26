@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+demo/
+rendered/
+review/
+input.json
+proposals.json
+.env
+.env.*

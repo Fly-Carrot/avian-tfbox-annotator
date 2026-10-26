@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avian TF-box Annotator"
+  short_description: "Bird vocalization boxes and offline Raven review"
+  default_prompt: "Use $avian-tfbox-annotator to propose unreviewed boxes for selected local recordings under the appropriate 10s or exact3s standard, preserve originals and export an offline review with Raven tables."
