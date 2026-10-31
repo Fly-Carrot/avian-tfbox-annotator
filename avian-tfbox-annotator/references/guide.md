@@ -49,7 +49,9 @@ Read `rendered/prepared.json` and inspect the images. Copy `proposals.template.j
 For each recording:
 
 - Set `status` to `proposed` with boxes, or `abstained` with an empty list.
-- Describe the sound unit, what you see, and any unclear boundaries.
+- Use `smallest_resolvable_syllable` for resolved raw units: one box per distinct syllable with its own visible onset and offset. Separate repeated syllables before merging, even when their gaps are 0.5s or less. Do not use one phrase box for several separable syllables.
+- Keep a continuous syllable together through bends and internal modulation. Do not count its harmonics as separate syllables. Follow the visible dominant contour without adding fixed frequency padding.
+- If a rapid sequence cannot be separated at useful image resolution, keep it together, describe the unit as an unresolved sequence, and explain the unclear boundaries. Do not invent cuts or force a larger box count. This visual unit still needs human review.
 - Record every image you inspected in `inspected_images`, using its check value from the prepared file.
 - Set `model_id`, `image_tool`, and `audio_listened` to match the tools and actions used. Use `fresh_visual` for new image inspection and `replay_existing` for saved boxes.
 

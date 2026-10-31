@@ -4,7 +4,7 @@ A Codex skill for marking bird sounds on spectrograms.
 
 Codex looks at your audio's spectrogram and draws boxes around visible sounds. Open the review page to listen, check the boxes, and leave notes.
 
-- **Cyan boxes** show individual sounds.
+- **Cyan boxes** show the smallest clearly separable syllables, one box each.
 - **Orange dashed boxes** combine sounds with gaps of up to 0.5 seconds.
 - Export the boxes and audio for use in Raven.
 
