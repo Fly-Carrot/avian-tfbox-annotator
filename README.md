@@ -6,6 +6,8 @@ Codex looks at your audio's spectrogram and draws boxes around visible sounds. O
 
 - **Cyan boxes** show the smallest clearly separable syllables, one box each.
 - **Orange dashed boxes** combine sounds with gaps of up to 0.5 seconds.
+- Prefer a clear lower band for each syllable and count its harmonics once.
+- Skip unclear background traces while keeping visible weak onsets and tails.
 - Export the boxes and audio for use in Raven.
 
 ## Install
@@ -30,6 +32,8 @@ Give Codex your audio folder and ask:
 
 > Use $avian-tfbox-annotator to mark bird sounds in these 3-second recordings. Show the original boxes and the 0.5-second merged boxes. Create a review page and Raven tables.
 
+For new 3-second clips, Codex checks separate main, low-frequency, and full-frequency images. It marks each visible, separable syllable before grouping and keeps continuous bends intact.
+
 The skill also supports 10-second clips. Codex keeps the source audio and saves the results in a new folder.
 
 ## Review the results
@@ -42,7 +46,7 @@ Open the generated `index.html` in your browser. Play the audio, switch between 
 .venv/bin/python examples/make_demo.py --out demo
 ```
 
-Open `demo/review/index.html`. The example uses three synthetic chirps.
+Open `demo/review/index.html`. The example uses three synthetic chirps and the earlier workflow. New 3-second work follows the [three-view guide](avian-tfbox-annotator/references/three-second-v2.md).
 
 [More options and commands](avian-tfbox-annotator/references/guide.md)
 

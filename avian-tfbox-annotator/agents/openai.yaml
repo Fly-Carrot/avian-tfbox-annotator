@@ -1,4 +1,4 @@
 interface:
   display_name: "Avian TF-box Annotator"
-  short_description: "Bird vocalization boxes and offline Raven review"
-  default_prompt: "Use $avian-tfbox-annotator to mark bird sounds in the selected recordings, compare original and merged boxes, and create a review page with Raven tables."
+  short_description: "Visual bird-call boxes, 0.5s grouping and Raven review"
+  default_prompt: "Use $avian-tfbox-annotator to annotate selected local bird recordings, choosing the appropriate 3-second or 10-second profile, and create a review with Raven tables."

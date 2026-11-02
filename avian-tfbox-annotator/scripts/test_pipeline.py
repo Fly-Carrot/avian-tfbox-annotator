@@ -15,9 +15,24 @@ import tfbox
 from core import grouping
 from profiles import media_keys
 
-REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / "examples"))
-from make_demo import chirps
+def chirps(path, sr=48000, duration=3, channels=1):
+    # Self-contained deterministic test fixture; no source recordings or model calls.
+    import array
+    import math
+    samples = array.array("h")
+    for i in range(sr * duration):
+        t, value = i / sr, 0.0
+        for onset in (0.5, 1.25, 2.5):
+            u = t - onset
+            if 0 <= u < 0.25:
+                phase = 2 * math.pi * (1200 * u + 1200 * u * u)
+                value += 0.35 * math.sin(phase) * math.sin(math.pi * u / 0.25) ** 2
+        samples.extend([int(value * 32767)] * channels)
+    if sys.byteorder != "little":
+        samples.byteswap()
+    with wave.open(str(path), "wb") as audio:
+        audio.setparams((channels, 2, sr, 0, "NONE", "not compressed"))
+        audio.writeframes(samples.tobytes())
 
 
 def box(name, start, end, top=500, bottom=545):
